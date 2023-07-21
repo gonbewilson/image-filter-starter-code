@@ -1,4 +1,5 @@
 import express from 'express';
+import { Request, Response } from 'express';
 import fs from "fs";
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
@@ -30,9 +31,9 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
   /**************************************************************************** */
 
-  //! END @TODO1
-  app.get( "/filteredimage/", ( req, res ) => {
-    let { image_url } = req.query;
+  //! end @todo1
+  app.get( "/filteredimage/", ( req: Request, res: Response ) => {
+    const image_url : string = req.query.image_url as string;
 
     if ( !image_url ) {
       return res.status(400)
@@ -40,9 +41,13 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
     }
 
 
-    filterImageFromURL(image_url).then((value) => {
-      res.status(200).sendFile(value);
-    })
+    filterImageFromURL(image_url)
+      .then((value) => {
+        res.status(200).sendFile(value);
+      })
+      .catch((error) => {
+        res.status(422).send(`Could not process ${image_url}`);
+      });
 
     res.on('finish', function() {
       const path = __dirname + "/util/tmp/";
